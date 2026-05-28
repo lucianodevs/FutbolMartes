@@ -27,7 +27,14 @@ async function findMatches({ team = '', result = '', search = '', limit = 10, of
   const { where, params } = buildMatchWhere({ team, result, search });
   const whereClause = where.length ? `WHERE ${where.join(' AND ')}` : '';
   const [rows] = await pool.query(
-    `SELECT * FROM partidos ${whereClause} ORDER BY fecha DESC, id DESC LIMIT ? OFFSET ?`,
+    `SELECT
+      partidos.*,
+      jugadores.nombre AS mvp_nombre,
+      jugadores.apellido AS mvp_apellido
+     FROM partidos
+     LEFT JOIN jugadores ON jugadores.id = partidos.mvp_jugador_id
+     ${whereClause}
+     ORDER BY fecha DESC, id DESC LIMIT ? OFFSET ?`,
     [...params, Number(limit), Number(offset)]
   );
   const [countRows] = await pool.query(`SELECT COUNT(*) AS total FROM partidos ${whereClause}`, params);
@@ -35,15 +42,25 @@ async function findMatches({ team = '', result = '', search = '', limit = 10, of
 }
 
 async function findMatchById(id) {
-  const [rows] = await pool.query('SELECT * FROM partidos WHERE id = ? LIMIT 1', [id]);
+  const [rows] = await pool.query(
+    `SELECT
+      partidos.*,
+      jugadores.nombre AS mvp_nombre,
+      jugadores.apellido AS mvp_apellido
+     FROM partidos
+     LEFT JOIN jugadores ON jugadores.id = partidos.mvp_jugador_id
+     WHERE partidos.id = ?
+     LIMIT 1`,
+    [id]
+  );
   return rows[0] || null;
 }
 
 async function createMatch(data) {
   const [result] = await pool.query(
     `INSERT INTO partidos
-      (fecha, equipo_local, equipo_visitante, goles_local, goles_visitante, ganador, observaciones, created_by)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      (fecha, equipo_local, equipo_visitante, goles_local, goles_visitante, ganador, observaciones, mvp_jugador_id, created_by)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       data.fecha,
       data.equipo_local,
@@ -52,6 +69,7 @@ async function createMatch(data) {
       data.goles_visitante,
       data.ganador,
       data.observaciones || null,
+      data.mvp_jugador_id || null,
       data.created_by || null,
     ]
   );
@@ -67,7 +85,8 @@ async function updateMatch(id, data) {
       goles_local = ?,
       goles_visitante = ?,
       ganador = ?,
-      observaciones = ?
+      observaciones = ?,
+      mvp_jugador_id = ?
      WHERE id = ?`,
     [
       data.fecha,
@@ -77,6 +96,7 @@ async function updateMatch(id, data) {
       data.goles_visitante,
       data.ganador,
       data.observaciones || null,
+      data.mvp_jugador_id || null,
       id,
     ]
   );
@@ -107,7 +127,34 @@ async function getTotalMatches() {
 }
 
 async function getRecentMatches(limit = 5) {
-  const [rows] = await pool.query('SELECT * FROM partidos ORDER BY fecha DESC, id DESC LIMIT ?', [Number(limit)]);
+  const [rows] = await pool.query(
+    `SELECT
+      partidos.*,
+      jugadores.nombre AS mvp_nombre,
+      jugadores.apellido AS mvp_apellido
+     FROM partidos
+     LEFT JOIN jugadores ON jugadores.id = partidos.mvp_jugador_id
+     ORDER BY fecha DESC, id DESC LIMIT ?`,
+    [Number(limit)]
+  );
+  return rows;
+}
+
+async function getTopMvps(limit = 3) {
+  const [rows] = await pool.query(
+    `SELECT
+      jugadores.id,
+      jugadores.nombre,
+      jugadores.apellido,
+      jugadores.equipo,
+      COUNT(*) AS mvp_count
+     FROM partidos
+     INNER JOIN jugadores ON jugadores.id = partidos.mvp_jugador_id
+     GROUP BY jugadores.id, jugadores.nombre, jugadores.apellido, jugadores.equipo
+     ORDER BY mvp_count DESC, jugadores.goles DESC, jugadores.id ASC
+     LIMIT ?`,
+    [Number(limit)]
+  );
   return rows;
 }
 
@@ -120,4 +167,5 @@ module.exports = {
   getMatchStats,
   getTotalMatches,
   getRecentMatches,
+  getTopMvps,
 };

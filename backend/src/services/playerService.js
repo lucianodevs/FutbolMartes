@@ -6,7 +6,7 @@ const {
   updatePlayer,
   deletePlayer,
   getAggregates,
-  findTopScorer,
+  findTopScorers,
   findMostPresences,
   findMostSanctions,
 } = require('../models/playerModel');
@@ -131,18 +131,25 @@ async function remove(id) {
 async function overview() {
   const totalMatches = await getTotalMatches();
   const aggregates = await getAggregates();
-  const [topScorer, mostPresences, mostSanctions] = await Promise.all([
-    findTopScorer(),
-    findMostPresences(),
-    findMostSanctions(),
+  const [topScorers, topPresences, topSanctions] = await Promise.all([
+    findTopScorers(3),
+    findMostPresences(3),
+    findMostSanctions(3),
   ]);
+
+  const normalizedTopScorers = topScorers.map((player) => normalizePlayer(player, totalMatches));
+  const normalizedTopPresences = topPresences.map((player) => normalizePlayer(player, totalMatches));
+  const normalizedTopSanctions = topSanctions.map((player) => normalizePlayer(player, totalMatches));
 
   return {
     ...aggregates,
     totalMatches,
-    topScorer: topScorer ? normalizePlayer(topScorer, totalMatches) : null,
-    mostPresences: mostPresences ? normalizePlayer(mostPresences, totalMatches) : null,
-    mostSanctions: mostSanctions ? normalizePlayer(mostSanctions, totalMatches) : null,
+    topScorer: normalizedTopScorers[0] || null,
+    mostPresences: normalizedTopPresences[0] || null,
+    mostSanctions: normalizedTopSanctions[0] || null,
+    topScorers: normalizedTopScorers,
+    topPresences: normalizedTopPresences,
+    topSanctions: normalizedTopSanctions,
   };
 }
 

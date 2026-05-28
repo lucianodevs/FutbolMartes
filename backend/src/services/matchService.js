@@ -7,7 +7,9 @@ const {
   deleteMatch,
   getMatchStats,
   getRecentMatches,
+  getTopMvps,
 } = require('../models/matchModel');
+const { findPlayerById } = require('../models/playerModel');
 
 function validateMatchInput(data) {
   const required = ['fecha', 'equipo_local', 'equipo_visitante', 'goles_local', 'goles_visitante'];
@@ -71,6 +73,14 @@ async function get(id) {
 
 async function create(payload, userId) {
   validateMatchInput(payload);
+  const mvpId = payload.mvp_jugador_id ? Number(payload.mvp_jugador_id) : null;
+  if (mvpId) {
+    const mvpPlayer = await findPlayerById(mvpId);
+    if (!mvpPlayer) {
+      throw new ApiError(400, 'El MVP seleccionado no existe');
+    }
+  }
+
   const ganador = resolveWinner(payload);
   const id = await createMatch({
     fecha: payload.fecha,
@@ -80,6 +90,7 @@ async function create(payload, userId) {
     goles_visitante: Number(payload.goles_visitante),
     ganador,
     observaciones: payload.observaciones,
+    mvp_jugador_id: mvpId,
     created_by: userId,
   });
   return get(id);
@@ -87,6 +98,14 @@ async function create(payload, userId) {
 
 async function update(id, payload) {
   validateMatchInput(payload);
+  const mvpId = payload.mvp_jugador_id ? Number(payload.mvp_jugador_id) : null;
+  if (mvpId) {
+    const mvpPlayer = await findPlayerById(mvpId);
+    if (!mvpPlayer) {
+      throw new ApiError(400, 'El MVP seleccionado no existe');
+    }
+  }
+
   const ganador = resolveWinner(payload);
   const affectedRows = await updateMatch(id, {
     fecha: payload.fecha,
@@ -96,6 +115,7 @@ async function update(id, payload) {
     goles_visitante: Number(payload.goles_visitante),
     ganador,
     observaciones: payload.observaciones,
+    mvp_jugador_id: mvpId,
   });
 
   if (!affectedRows) {
@@ -114,8 +134,12 @@ async function remove(id) {
 }
 
 async function stats() {
-  const [matchStats, recentMatches] = await Promise.all([getMatchStats(), getRecentMatches(5)]);
-  return { ...matchStats, recentMatches };
+  const [matchStats, recentMatches, topMvps] = await Promise.all([
+    getMatchStats(),
+    getRecentMatches(5),
+    getTopMvps(3),
+  ]);
+  return { ...matchStats, recentMatches, topMvps };
 }
 
 module.exports = { list, get, create, update, remove, stats };

@@ -103,19 +103,28 @@ async function getAggregates() {
   return rows[0];
 }
 
-async function findTopScorer() {
-  const [rows] = await pool.query('SELECT * FROM jugadores ORDER BY goles DESC, presencias DESC LIMIT 1');
-  return rows[0] || null;
+async function findTopScorers(limit = 3) {
+  const [rows] = await pool.query(
+    'SELECT * FROM jugadores ORDER BY goles DESC, presencias DESC, id ASC LIMIT ?',
+    [Number(limit)]
+  );
+  return rows;
 }
 
-async function findMostPresences() {
-  const [rows] = await pool.query('SELECT * FROM jugadores ORDER BY presencias DESC, goles DESC LIMIT 1');
-  return rows[0] || null;
+async function findMostPresences(limit = 3) {
+  const [rows] = await pool.query(
+    'SELECT * FROM jugadores ORDER BY presencias DESC, goles DESC, id ASC LIMIT ?',
+    [Number(limit)]
+  );
+  return rows;
 }
 
-async function findMostSanctions() {
-  const [rows] = await pool.query('SELECT * FROM jugadores ORDER BY sanciones DESC, goles DESC LIMIT 1');
-  return rows[0] || null;
+async function findMostSanctions(limit = 3) {
+  const [rows] = await pool.query(
+    'SELECT * FROM jugadores ORDER BY sanciones DESC, goles DESC, id ASC LIMIT ?',
+    [Number(limit)]
+  );
+  return rows;
 }
 
 module.exports = {
@@ -125,7 +134,7 @@ module.exports = {
   updatePlayer,
   deletePlayer,
   getAggregates,
-  findTopScorer,
+  findTopScorers,
   findMostPresences,
   findMostSanctions,
 };
