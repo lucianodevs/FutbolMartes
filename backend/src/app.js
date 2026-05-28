@@ -14,7 +14,24 @@ const app = express();
 
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true }));
-app.use(cors({ origin: process.env.CORS_ORIGIN || '*', credentials: true }));
+
+// ✅ Configuración CORS avanzada
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://zingy-sunflower-69fad8.netlify.app'
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin) || origin.endsWith('.netlify.app')) {
+      return callback(null, true);
+    }
+    return callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true
+}));
+
 app.use(helmet());
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
@@ -29,24 +46,5 @@ app.use('/api/stats', statsRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
-
-
-const allowedOrigins = [
-  'http://localhost:5173',
-  'https://zingy-sunflower-69fad8.netlify.app'
-];
-
-
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin) || origin.endsWith('.netlify.app')) {
-      return callback(null, true);
-    }
-    return callback(new Error('Not allowed by CORS'));
-  },
-  credentials: true
-}));
-
 
 module.exports = app;
