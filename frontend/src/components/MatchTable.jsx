@@ -62,7 +62,7 @@ export function MatchTable({ matches, onEdit, onDelete }) {
       <Table>
         <thead>
           <tr>
-            <TH>ID</TH><TH>Fecha</TH><TH>Local</TH><TH>Visitante</TH><TH>Resultado</TH><TH>Goles</TH><TH>Observaciones</TH>{hasActions ? <TH>Acciones</TH> : null}
+            <TH>ID</TH><TH>Fecha</TH><TH>Local</TH><TH>Visitante</TH><TH>Resultado</TH><TH>Goles</TH><TH>MVP</TH><TH>Observaciones</TH>{hasActions ? <TH>Acciones</TH> : null}
           </tr>
         </thead>
         <tbody>
@@ -74,6 +74,7 @@ export function MatchTable({ matches, onEdit, onDelete }) {
               <TD>{match.equipo_visitante}</TD>
               <TD>{match.ganador}</TD>
               <TD>{match.goles_local} - {match.goles_visitante}</TD>
+              <TD>{match.mvp_nombre ? `${match.mvp_nombre} ${match.mvp_apellido || ''}`.trim() : '-'}</TD>
               <TD>{match.observaciones || '-'}</TD>
               {hasActions ? (
                 <TD>

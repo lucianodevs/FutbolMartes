@@ -7,6 +7,7 @@ import { MatchTable } from '@/components/MatchTable';
 import { Pagination } from '@/components/Pagination';
 import { SkeletonTable } from '@/components/SkeletonTable';
 import { getMatches, createMatch, updateMatch, deleteMatch } from '@/services/matchService';
+import { getPlayers } from '@/services/playerService';
 
 const Header = styled.div`
   display: flex;
@@ -89,12 +90,22 @@ const Secondary = styled.button`
 
 export function MatchesPage() {
   const [matches, setMatches] = useState([]);
+  const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [meta, setMeta] = useState({ totalPages: 1 });
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState(null);
-  const [form, setForm] = useState({ fecha: '', equipo_local: 'Dictadores', equipo_visitante: 'Tramposos', goles_local: 0, goles_visitante: 0, ganador: 'Dictadores', observaciones: '' });
+  const [form, setForm] = useState({ fecha: '', equipo_local: 'Dictadores', equipo_visitante: 'Tramposos', goles_local: 0, goles_visitante: 0, ganador: 'Dictadores', observaciones: '', mvp_jugador_id: '' });
+
+  const loadPlayers = async () => {
+    try {
+      const data = await getPlayers({ page: 1, limit: 300, order: 'asc', sortBy: 'apellido' });
+      setPlayers(data.items || []);
+    } catch {
+      setPlayers([]);
+    }
+  };
 
   const loadMatches = async () => {
     try {
@@ -113,9 +124,13 @@ export function MatchesPage() {
     loadMatches();
   }, [page]);
 
+  useEffect(() => {
+    loadPlayers();
+  }, []);
+
   const openCreate = () => {
     setEditing(null);
-    setForm({ fecha: '', equipo_local: 'Dictadores', equipo_visitante: 'Tramposos', goles_local: 0, goles_visitante: 0, ganador: 'Dictadores', observaciones: '' });
+    setForm({ fecha: '', equipo_local: 'Dictadores', equipo_visitante: 'Tramposos', goles_local: 0, goles_visitante: 0, ganador: 'Dictadores', observaciones: '', mvp_jugador_id: '' });
     setModalOpen(true);
   };
 
@@ -129,6 +144,7 @@ export function MatchesPage() {
       goles_visitante: match.goles_visitante,
       ganador: match.ganador,
       observaciones: match.observaciones || '',
+      mvp_jugador_id: match.mvp_jugador_id ? String(match.mvp_jugador_id) : '',
     });
     setModalOpen(true);
   };
@@ -196,6 +212,15 @@ export function MatchesPage() {
           <Field>Goles local<Input type="number" value={form.goles_local} onChange={(event) => setForm({ ...form, goles_local: event.target.value })} /></Field>
           <Field>Goles visitante<Input type="number" value={form.goles_visitante} onChange={(event) => setForm({ ...form, goles_visitante: event.target.value })} /></Field>
           <Field>Ganador<Select value={form.ganador} onChange={(event) => setForm({ ...form, ganador: event.target.value })}><option>Dictadores</option><option>Tramposos</option><option>Empate</option></Select></Field>
+          <Field>
+            MVP
+            <Select value={form.mvp_jugador_id} onChange={(event) => setForm({ ...form, mvp_jugador_id: event.target.value })}>
+              <option value="">Sin MVP</option>
+              {players.map((player) => (
+                <option key={player.id} value={player.id}>{player.nombre} {player.apellido}</option>
+              ))}
+            </Select>
+          </Field>
           <Textarea placeholder="Observaciones" value={form.observaciones} onChange={(event) => setForm({ ...form, observaciones: event.target.value })} />
           <Actions>
             <Secondary type="button" onClick={() => setModalOpen(false)}>Cancelar</Secondary>

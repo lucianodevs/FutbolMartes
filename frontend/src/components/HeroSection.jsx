@@ -85,7 +85,48 @@ const CardTitle = styled.h3`
   margin: 0 0 10px;
 `;
 
+const RankingList = styled.ol`
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 8px;
+`;
+
+const RankingItem = styled.li`
+  color: ${({ theme }) => theme.colors.text};
+
+  small {
+    display: block;
+    color: ${({ theme }) => theme.colors.muted};
+  }
+`;
+
+function RankingCard({ title, items, detailBuilder }) {
+  return (
+    <Card>
+      <CardTitle>{title}</CardTitle>
+      {!items?.length ? (
+        <div>Sin datos</div>
+      ) : (
+        <RankingList>
+          {items.slice(0, 3).map((item) => (
+            <RankingItem key={`${title}-${item.id}`}>
+              {item.nombre} {item.apellido}
+              <small>{detailBuilder(item)}</small>
+            </RankingItem>
+          ))}
+        </RankingList>
+      )}
+    </Card>
+  );
+}
+
 export function HeroSection({ overview }) {
+  const topScorers = overview?.topScorers || (overview?.topScorer ? [overview.topScorer] : []);
+  const topPresences = overview?.topPresences || (overview?.mostPresences ? [overview.mostPresences] : []);
+  const topSanctions = overview?.topSanctions || (overview?.mostSanctions ? [overview.mostSanctions] : []);
+  const topMvps = overview?.topMvps || [];
+
   return (
     <Hero>
       <Panel>
@@ -108,39 +149,26 @@ export function HeroSection({ overview }) {
         </Metrics>
       </Panel>
       <Side initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}>
-        <Card>
-          <CardTitle>Top goleador</CardTitle>
-          <div>
-            {overview?.topScorer ? (
-              <>
-                <div>{`${overview.topScorer.nombre} ${overview.topScorer.apellido}`}</div>
-                <small>{`${formatNumber(overview.topScorer.goles)} goles`}</small>
-              </>
-            ) : 'Sin datos'}
-          </div>
-        </Card>
-        <Card>
-          <CardTitle>Más presencias</CardTitle>
-          <div>
-            {overview?.mostPresences ? (
-              <>
-                <div>{`${overview.mostPresences.nombre} ${overview.mostPresences.apellido}`}</div>
-                <small>{`${formatNumber(overview.mostPresences.presencias)} presencias • ${overview.mostPresences.asistencia_porcentaje ?? 0}%`}</small>
-              </>
-            ) : 'Sin datos'}
-          </div>
-        </Card>
-        <Card>
-          <CardTitle>Más sanciones</CardTitle>
-          <div>
-            {overview?.mostSanctions ? (
-              <>
-                <div>{`${overview.mostSanctions.nombre} ${overview.mostSanctions.apellido}`}</div>
-                <small>{`${formatNumber(overview.mostSanctions.sanciones)} sanciones`}</small>
-              </>
-            ) : 'Sin datos'}
-          </div>
-        </Card>
+        <RankingCard
+          title="Top goleadores"
+          items={topScorers}
+          detailBuilder={(item) => `${formatNumber(item.goles)} goles`}
+        />
+        <RankingCard
+          title="Más presencias"
+          items={topPresences}
+          detailBuilder={(item) => `${formatNumber(item.presencias)} presencias • ${item.asistencia_porcentaje ?? 0}%`}
+        />
+        <RankingCard
+          title="Más sanciones"
+          items={topSanctions}
+          detailBuilder={(item) => `${formatNumber(item.sanciones)} sanciones`}
+        />
+        <RankingCard
+          title="Top MVP"
+          items={topMvps}
+          detailBuilder={(item) => `${formatNumber(item.mvp_count)} MVP`}
+        />
       </Side>
     </Hero>
   );
