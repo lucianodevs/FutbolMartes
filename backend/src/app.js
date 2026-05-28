@@ -30,4 +30,23 @@ app.use('/api/stats', statsRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
+
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://zingy-sunflower-69fad8.netlify.app'
+];
+
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin) || origin.endsWith('.netlify.app')) {
+      return callback(null, true);
+    }
+    return callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true
+}));
+
+
 module.exports = app;
