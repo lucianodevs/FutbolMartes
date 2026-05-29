@@ -84,6 +84,14 @@ async function updatePlayer(id, data) {
   return result.affectedRows;
 }
 
+async function updatePlayerPhoto(id, fotoPath) {
+  const [result] = await pool.query(
+    `UPDATE jugadores SET foto = ? WHERE id = ?`,
+    [fotoPath, id]
+  );
+  return result.affectedRows;
+}
+
 async function deletePlayer(id) {
   const [result] = await pool.query('DELETE FROM jugadores WHERE id = ?', [id]);
   return result.affectedRows;
@@ -137,4 +145,5 @@ module.exports = {
   findTopScorers,
   findMostPresences,
   findMostSanctions,
+  updatePlayerPhoto,
 };

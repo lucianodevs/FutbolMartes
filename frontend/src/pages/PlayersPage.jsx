@@ -202,7 +202,7 @@ export function PlayersPage() {
 
       <SearchBar search={search} setSearch={setSearch} team={team} setTeam={setTeam} sortBy={sortBy} setSortBy={setSortBy} />
 
-      {loading ? <SkeletonTable rows={8} /> : <PlayerTable players={players} onEdit={openEdit} onDelete={handleDelete} />}
+      {loading ? <SkeletonTable rows={8} /> : <PlayerTable players={players} onEdit={openEdit} onDelete={handleDelete} onPlayerUpdated={(updated) => setPlayers((prev) => prev.map((p) => (p.id === updated.id ? updated : p)))} />}
 
       <Pagination page={page} totalPages={meta.totalPages} onPrev={() => setPage((value) => Math.max(1, value - 1))} onNext={() => setPage((value) => Math.min(meta.totalPages, value + 1))} />
 

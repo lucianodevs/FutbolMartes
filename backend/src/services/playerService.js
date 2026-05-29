@@ -9,6 +9,7 @@ const {
   findTopScorers,
   findMostPresences,
   findMostSanctions,
+  updatePlayerPhoto,
 } = require('../models/playerModel');
 const { getTotalMatches } = require('../models/matchModel');
 
@@ -154,3 +155,13 @@ async function overview() {
 }
 
 module.exports = { listPlayers, getPlayer, create, update, remove, overview, normalizePlayer };
+
+async function setPlayerPhoto(id, fotoPath) {
+  const affected = await updatePlayerPhoto(id, fotoPath);
+  if (!affected) {
+    throw new ApiError(404, 'Jugador no encontrado');
+  }
+  return getPlayer(id);
+}
+
+module.exports = { listPlayers, getPlayer, create, update, remove, overview, normalizePlayer, setPlayerPhoto };

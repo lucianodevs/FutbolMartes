@@ -1,6 +1,10 @@
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 import { formatNumber } from '@/utils/formatters';
+import { Modal } from './Modal';
+import { uploadPlayerPhoto } from '@/services/playerService';
+import { useAuth } from '@/hooks/useAuth';
 
 const Wrap = styled.div`
   width: min(1200px, calc(100% - 32px));
@@ -57,6 +61,40 @@ const CardTitle = styled.div`
 const CardName = styled.div`
   font-weight: 700;
   font-size: 1rem;
+`;
+
+const Photo = styled.img`
+  width: 140px;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+`;
+
+const SmallPhoto = styled.img`
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  margin-right: 12px;
+`;
+
+const ModalGrid = styled.div`
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 18px;
+  align-items: start;
+`;
+
+const ModalLabel = styled.div`
+  color: ${({ theme }) => theme.colors.muted};
+  font-size: 0.85rem;
+`;
+
+const ModalValue = styled.div`
+  font-weight: 700;
+  margin-bottom: 8px;
 `;
 
 const CardSubtle = styled.div`
@@ -151,12 +189,28 @@ const Empty = styled.div`
   }
 `;
 
-export function PlayerTable({ players, onEdit, onDelete }) {
+export function PlayerTable({ players, onEdit, onDelete, onPlayerUpdated }) {
+  const [selectedPlayer, setSelectedPlayer] = useState(null);
+
+  const closeModal = () => setSelectedPlayer(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [uploading, setUploading] = useState(false);
   if (!players?.length) {
     return <Wrap><Empty>No hay jugadores para mostrar.</Empty></Wrap>;
   }
 
   const hasActions = typeof onEdit === 'function' || typeof onDelete === 'function';
+  const { user } = useAuth();
+  const isAdmin = user?.rol === 'admin';
+
+  const apiUrl = (import.meta.env.VITE_API_URL || 'http://localhost:4000/api').replace(/\/api\/?$/, '');
+  const publicUrl = (fotoPath) => {
+    if (!fotoPath) return null;
+    if (fotoPath.startsWith('http://') || fotoPath.startsWith('https://')) return fotoPath;
+    return `${apiUrl}${fotoPath}`;
+  };
+  const placeholderDataUrl = `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="280" height="280"><rect width="100%" height="100%" fill="#777"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="28" fill="#fff">Jugador</text></svg>')}`;
 
   return (
     <Wrap>
@@ -169,7 +223,7 @@ export function PlayerTable({ players, onEdit, onDelete }) {
         <tbody>
           {players.map((player) => (
             <tr key={player.id}>
-              <TD>{player.nombre}</TD>
+              <TD onClick={() => setSelectedPlayer(player)} style={{ cursor: 'pointer' }} title="Ver jugador">{player.nombre}</TD>
               <TD>{player.apellido}</TD>
               <TD>{player.equipo}</TD>
               <TD>{formatNumber(player.goles)}</TD>
@@ -178,7 +232,7 @@ export function PlayerTable({ players, onEdit, onDelete }) {
               <TD>{formatNumber(player.sanciones)}</TD>
               <TD>{formatNumber(player.pecheras_llevadas)}</TD>
               <TD>{formatNumber(player.pecheras_sin_lavar)}</TD>
-              {hasActions ? (
+              {hasActions && isAdmin ? (
                 <TD>
                   <RowActions>
                     {typeof onEdit === 'function' ? <Action onClick={() => onEdit(player)}><FiEdit2 /></Action> : null}
@@ -195,10 +249,13 @@ export function PlayerTable({ players, onEdit, onDelete }) {
         {players.map((player) => (
           <Card key={player.id}>
             <CardHeader>
-              <CardTitle>
-                <CardSubtle>{player.equipo}</CardSubtle>
-                <CardName>{player.nombre} {player.apellido}</CardName>
-              </CardTitle>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <SmallPhoto src={publicUrl(player.foto) || placeholderDataUrl} alt={`${player.nombre}`} />
+                <CardTitle>
+                  <CardSubtle>{player.equipo}</CardSubtle>
+                  <CardName onClick={() => setSelectedPlayer(player)} style={{ cursor: 'pointer' }}>{player.nombre} {player.apellido}</CardName>
+                </CardTitle>
+              </div>
               <Badge>{player.equipo}</Badge>
             </CardHeader>
 
@@ -229,7 +286,7 @@ export function PlayerTable({ players, onEdit, onDelete }) {
               </Stat>
             </Stats>
 
-            {hasActions ? (
+            {hasActions && isAdmin ? (
               <CardActions>
                 {typeof onEdit === 'function' ? <Action onClick={() => onEdit(player)} aria-label={`Editar ${player.nombre} ${player.apellido}`}><FiEdit2 /></Action> : null}
                 {typeof onDelete === 'function' ? <Action $danger onClick={() => onDelete(player)} aria-label={`Eliminar ${player.nombre} ${player.apellido}`}><FiTrash2 /></Action> : null}
@@ -238,6 +295,101 @@ export function PlayerTable({ players, onEdit, onDelete }) {
           </Card>
         ))}
       </Cards>
+
+      <Modal open={!!selectedPlayer} title={selectedPlayer ? `${selectedPlayer.nombre} ${selectedPlayer.apellido}` : ''} onClose={closeModal}>
+        {selectedPlayer && (
+          <ModalGrid>
+            <Photo src={publicUrl(selectedPlayer.foto) || placeholderDataUrl} alt={`${selectedPlayer.nombre} ${selectedPlayer.apellido}`} />
+            <div>
+              <ModalLabel>Equipo</ModalLabel>
+              <ModalValue>{selectedPlayer.equipo}</ModalValue>
+
+              <ModalLabel>Goles</ModalLabel>
+              <ModalValue>{formatNumber(selectedPlayer.goles)}</ModalValue>
+
+              <ModalLabel>Presencias</ModalLabel>
+              <ModalValue>{formatNumber(selectedPlayer.presencias)} ({selectedPlayer.asistencia_porcentaje}%)</ModalValue>
+
+              <ModalLabel>Sanciones</ModalLabel>
+              <ModalValue>{formatNumber(selectedPlayer.sanciones)}</ModalValue>
+
+              <ModalLabel>Pecheras llevadas</ModalLabel>
+              <ModalValue>{formatNumber(selectedPlayer.pecheras_llevadas)}</ModalValue>
+
+              <ModalLabel>Pecheras sin lavar</ModalLabel>
+              <ModalValue>{formatNumber(selectedPlayer.pecheras_sin_lavar)}</ModalValue>
+            </div>
+            {hasActions && isAdmin ? (
+              <CardActions style={{ marginTop: 12 }}>
+                {typeof onEdit === 'function' ? <Action onClick={() => { onEdit(selectedPlayer); closeModal(); }} aria-label={`Editar ${selectedPlayer.nombre}`}><FiEdit2 /></Action> : null}
+                {typeof onDelete === 'function' ? <Action $danger onClick={() => { onDelete(selectedPlayer); closeModal(); }} aria-label={`Eliminar ${selectedPlayer.nombre}`}><FiTrash2 /></Action> : null}
+              </CardActions>
+            ) : null}
+            {isAdmin ? (
+              <div style={{ marginTop: 12 }}>
+                <label style={{ display: 'block', marginBottom: 8 }}>
+                  Subir foto (max 2MB):
+                </label>
+                <input type="file" accept="image/*" onChange={(e) => {
+                  const file = e.target.files[0];
+                  if (!file) return;
+                  // validar tipo y tamaño
+                  if (!file.type.startsWith('image/')) {
+                    alert('Por favor seleccioná una imagen');
+                    return;
+                  }
+                  if (file.size > 2 * 1024 * 1024) {
+                    alert('El archivo supera el límite de 2MB');
+                    return;
+                  }
+                  if (previewUrl) URL.revokeObjectURL(previewUrl);
+                  setSelectedFile(file);
+                  setPreviewUrl(URL.createObjectURL(file));
+                }} />
+                {previewUrl ? (
+                  <div style={{ marginTop: 8 }}>
+                    <img src={previewUrl} alt="preview" style={{ width: 120, height: 120, objectFit: 'cover', borderRadius: 8, border: '1px solid rgba(0,0,0,0.08)' }} />
+                    <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
+                      <Action onClick={async () => {
+                        if (!selectedFile) return;
+                        // doble validación antes de subir
+                        if (!selectedFile.type.startsWith('image/')) {
+                          alert('Archivo inválido');
+                          return;
+                        }
+                        if (selectedFile.size > 2 * 1024 * 1024) {
+                          alert('El archivo supera el límite de 2MB');
+                          return;
+                        }
+                        try {
+                          setUploading(true);
+                          const updated = await uploadPlayerPhoto(selectedPlayer.id, selectedFile);
+                          setSelectedPlayer(updated);
+                          if (typeof onPlayerUpdated === 'function') onPlayerUpdated(updated);
+                          // limpiar preview
+                          if (previewUrl) URL.revokeObjectURL(previewUrl);
+                          setSelectedFile(null);
+                          setPreviewUrl(null);
+                        } catch (err) {
+                          console.error('Upload error', err);
+                          alert('Error al subir la imagen');
+                        } finally {
+                          setUploading(false);
+                        }
+                      }}>{uploading ? 'Subiendo...' : 'Subir'}</Action>
+                      <Action $danger onClick={() => {
+                        if (previewUrl) URL.revokeObjectURL(previewUrl);
+                        setSelectedFile(null);
+                        setPreviewUrl(null);
+                      }}>Cancelar</Action>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
+          </ModalGrid>
+        )}
+      </Modal>
     </Wrap>
   );
 }

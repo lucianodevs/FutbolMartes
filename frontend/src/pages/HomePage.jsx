@@ -72,7 +72,7 @@ export function HomePage() {
           <Title>Buscar y ordenar jugadores</Title>
         </Container>
         <SearchBar search={search} setSearch={setSearch} team={team} setTeam={setTeam} sortBy={sortBy} setSortBy={setSortBy} />
-        {loading ? <SkeletonTable rows={5} /> : <PlayerTable players={players} />}
+        {loading ? <SkeletonTable rows={5} /> : <PlayerTable players={players} onPlayerUpdated={(updated) => setPlayers((prev) => prev.map((p) => (p.id === updated.id ? updated : p)))} />}
       </Section>
       <Section>
         <Container>

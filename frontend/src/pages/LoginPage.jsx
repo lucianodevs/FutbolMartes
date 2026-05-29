@@ -60,7 +60,7 @@ const Button = styled.button`
 `;
 
 export function LoginPage() {
-  const [form, setForm] = useState({ email: 'admin@futbol.com', password: 'Admin123!' });
+  const [form, setForm] = useState({ email: '', password: '' });
   const [submitting, setSubmitting] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -84,14 +84,14 @@ export function LoginPage() {
       <Card>
         <Title>Acceso administrativo</Title>
         <Text>Ingresá al dashboard para administrar jugadores y partidos.</Text>
-        <Form onSubmit={handleSubmit}>
+        <Form onSubmit={handleSubmit} autoComplete="off">
           <Field>
             <label><FiMail /> Email</label>
-            <Input type="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} />
+            <Input type="email" name="email" autoComplete="off" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} />
           </Field>
           <Field>
             <label><FiLock /> Password</label>
-            <Input type="password" value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} />
+            <Input type="password" name="password" autoComplete="new-password" value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} />
           </Field>
           <Button type="submit" disabled={submitting}>{submitting ? 'Ingresando...' : <><FiLogIn /> Entrar</>}</Button>
         </Form>

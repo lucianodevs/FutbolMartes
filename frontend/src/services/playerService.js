@@ -25,6 +25,13 @@ export async function deletePlayer(id) {
   return response.data.data;
 }
 
+export async function uploadPlayerPhoto(id, file) {
+  const form = new FormData();
+  form.append('photo', file);
+  const response = await api.post(`/players/${id}/photo`, form);
+  return response.data.data;
+}
+
 export async function getPlayerOverview() {
   const response = await api.get('/players/overview');
   return response.data.data;

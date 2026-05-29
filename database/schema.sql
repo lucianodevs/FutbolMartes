@@ -19,6 +19,7 @@ CREATE TABLE jugadores (
   nombre VARCHAR(80) NOT NULL,
   apellido VARCHAR(80) NOT NULL,
   equipo ENUM('Dictadores', 'Tramposos') NOT NULL,
+  foto VARCHAR(255) NULL,
   goles INT NOT NULL DEFAULT 0,
   presencias INT NOT NULL DEFAULT 0,
   sanciones INT NOT NULL DEFAULT 0,
