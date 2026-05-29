@@ -180,13 +180,12 @@ export function MatchTable({ matches, onEdit, onDelete }) {
       <Table>
         <thead>
           <tr>
-            <TH>ID</TH><TH>Fecha</TH><TH>Local</TH><TH>Visitante</TH><TH>Resultado</TH><TH>Goles</TH><TH>MVP</TH><TH>Observaciones</TH>{hasActions ? <TH>Acciones</TH> : null}
+            <TH>Fecha</TH><TH>Local</TH><TH>Visitante</TH><TH>Resultado</TH><TH>Goles</TH><TH>MVP</TH><TH>Observaciones</TH>{hasActions ? <TH>Acciones</TH> : null}
           </tr>
         </thead>
         <tbody>
           {matches.map((match) => (
             <tr key={match.id}>
-              <TD>{match.id}</TD>
               <TD>{formatDate(match.fecha)}</TD>
               <TD>{match.equipo_local}</TD>
               <TD>{match.equipo_visitante}</TD>
@@ -212,7 +211,7 @@ export function MatchTable({ matches, onEdit, onDelete }) {
           <Card key={match.id}>
             <CardHeader>
               <CardTitle>
-                <CardSubtle>ID {match.id}</CardSubtle>
+                <CardSubtle>{match.equipo_local} vs {match.equipo_visitante}</CardSubtle>
                 <CardDate>{formatDate(match.fecha)}</CardDate>
               </CardTitle>
               <Badge>{match.ganador}</Badge>

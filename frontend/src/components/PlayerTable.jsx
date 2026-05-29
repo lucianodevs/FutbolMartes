@@ -163,13 +163,12 @@ export function PlayerTable({ players, onEdit, onDelete }) {
       <Table>
         <thead>
           <tr>
-            <TH>ID</TH><TH>Nombre</TH><TH>Apellido</TH><TH>Equipo</TH><TH>Goles</TH><TH>Presencias</TH><TH>% Presencia</TH><TH>Sanciones</TH><TH>Pecheras</TH><TH>Sin lavar</TH>{hasActions ? <TH>Acciones</TH> : null}
+            <TH>Nombre</TH><TH>Apellido</TH><TH>Equipo</TH><TH>Goles</TH><TH>Presencias</TH><TH>% Presencia</TH><TH>Sanciones</TH><TH>Pecheras</TH><TH>Sin lavar</TH>{hasActions ? <TH>Acciones</TH> : null}
           </tr>
         </thead>
         <tbody>
           {players.map((player) => (
             <tr key={player.id}>
-              <TD>{player.id}</TD>
               <TD>{player.nombre}</TD>
               <TD>{player.apellido}</TD>
               <TD>{player.equipo}</TD>
@@ -197,7 +196,7 @@ export function PlayerTable({ players, onEdit, onDelete }) {
           <Card key={player.id}>
             <CardHeader>
               <CardTitle>
-                <CardSubtle>ID {player.id}</CardSubtle>
+                <CardSubtle>{player.equipo}</CardSubtle>
                 <CardName>{player.nombre} {player.apellido}</CardName>
               </CardTitle>
               <Badge>{player.equipo}</Badge>

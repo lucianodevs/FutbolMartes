@@ -39,6 +39,7 @@ CREATE TABLE partidos (
   goles_visitante INT NOT NULL DEFAULT 0,
   ganador ENUM('Dictadores', 'Tramposos', 'Empate') NOT NULL,
   observaciones TEXT,
+  goles_detalle JSON NULL,
   mvp_jugador_id INT NULL,
   created_by INT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
