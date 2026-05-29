@@ -6,8 +6,9 @@ const Footer = styled.footer`
   padding: 22px 0 0;
   color: ${({ theme }) => theme.colors.muted};
   border-top: 1px solid ${({ theme }) => theme.colors.border};
+  text-align: center;
 `;
 
 export function PublicFooter() {
-  return <Footer>Futbol Stats Pro · Panel deportivo moderno para administración amateur.</Footer>;
+  return <Footer>Futbol Martes Dictadores - Tramposos · Derechos reservados Cordobes</Footer>;
 }

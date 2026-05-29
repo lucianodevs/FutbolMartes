@@ -131,9 +131,9 @@ export function HeroSection({ overview }) {
     <Hero>
       <Panel>
         <Badge><FiZap /> Estadísticas en vivo</Badge>
-        <Title>Administra el fútbol amateur con una experiencia premium.</Title>
+        <Title>El panel del grupo de amigos que vive el fútbol todos los martes.</Title>
         <Text>
-          Seguimiento de jugadores, partidos, victorias y asistencia con un tablero moderno, rápido y preparado para crecer.
+          Seguimos los partidos, goles, presencias y sanciones de Dictadores vs. Tramposos con una vista simple, rápida y hecha para nuestro juego entre amigos.
         </Text>
         <Metrics>
           <Metric>

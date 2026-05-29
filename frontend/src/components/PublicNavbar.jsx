@@ -80,7 +80,7 @@ export function PublicNavbar() {
     <Bar>
       <Inner>
         <Brand to="/">
-          <FiShield /> Futbol Stats Pro
+          <FiShield /> Futbol Martes Dictadores - Tramposos
         </Brand>
         <Nav>
           <Action to="/">Estadísticas</Action>

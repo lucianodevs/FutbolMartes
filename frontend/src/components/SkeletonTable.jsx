@@ -8,6 +8,8 @@ const shimmer = keyframes`
 const Grid = styled.div`
   display: grid;
   gap: 12px;
+  width: min(1200px, calc(100% - 32px));
+  margin: 22px auto 0;
 `;
 
 const Row = styled.div`
@@ -16,6 +18,10 @@ const Row = styled.div`
   background: linear-gradient(90deg, rgba(255,255,255,0.06) 25%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.06) 75%);
   background-size: 200% 100%;
   animation: ${shimmer} 1.3s infinite;
+
+  @media (max-width: 720px) {
+    height: 48px;
+  }
 `;
 
 export function SkeletonTable({ rows = 5 }) {

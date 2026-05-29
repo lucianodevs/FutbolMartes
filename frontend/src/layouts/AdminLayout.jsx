@@ -21,6 +21,10 @@ const Content = styled.div`
 
 const Page = styled.div`
   padding: 24px;
+
+  @media (max-width: 720px) {
+    padding: 16px;
+  }
 `;
 
 const Backdrop = styled.div`
