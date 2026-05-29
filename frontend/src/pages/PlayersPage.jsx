@@ -57,10 +57,24 @@ const Input = styled.input`
 
 const Select = styled.select`
   border: 1px solid ${({ theme }) => theme.colors.border};
-  background: rgba(255,255,255,0.04);
+  background-color: rgba(255,255,255,0.04);
   color: ${({ theme }) => theme.colors.text};
   padding: 13px 14px;
   border-radius: 14px;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  color-scheme: dark;
+  caret-color: ${({ theme }) => theme.colors.text};
+  font-weight: 600;
+  box-shadow: none;
+  text-shadow: none;
+  -webkit-text-fill-color: ${({ theme }) => theme.colors.text};
+
+  option {
+    background: #081523;
+    color: ${({ theme }) => theme.colors.text};
+  }
 `;
 
 const Actions = styled.div`
