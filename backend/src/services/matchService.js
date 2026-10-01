@@ -137,7 +137,7 @@ async function stats() {
   const [matchStats, recentMatches, topMvps] = await Promise.all([
     getMatchStats(),
     getRecentMatches(5),
-    getTopMvps(3),
+    getTopMvps(6),
   ]);
   return { ...matchStats, recentMatches, topMvps };
 }

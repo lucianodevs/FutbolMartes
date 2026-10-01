@@ -17,7 +17,7 @@ const Actions = styled.div`
 const Button = styled.button`
   border: 1px solid ${({ theme }) => theme.colors.border};
   background: ${({ theme, $primary }) => ($primary ? theme.colors.primary : 'transparent')};
-  color: ${({ theme, $primary }) => ($primary ? '#07111f' : theme.colors.text)};
+  color: ${({ theme, $primary }) => ($primary ? theme.colors.bg : theme.colors.text)};
   padding: 10px 14px;
   border-radius: 14px;
   cursor: pointer;

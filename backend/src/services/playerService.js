@@ -133,9 +133,9 @@ async function overview() {
   const totalMatches = await getTotalMatches();
   const aggregates = await getAggregates();
   const [topScorers, topPresences, topSanctions] = await Promise.all([
-    findTopScorers(3),
-    findMostPresences(3),
-    findMostSanctions(3),
+    findTopScorers(6),
+    findMostPresences(6),
+    findMostSanctions(6),
   ]);
 
   const normalizedTopScorers = topScorers.map((player) => normalizePlayer(player, totalMatches));

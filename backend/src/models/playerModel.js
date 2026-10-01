@@ -25,7 +25,9 @@ async function findPlayers({ search = '', team = '', sortBy = 'goles', order = '
   const whereClause = where.length ? `WHERE ${where.join(' AND ')}` : '';
   const orderClause = buildOrderBy(sortBy, order);
   const [rows] = await pool.query(
-    `SELECT * FROM jugadores ${whereClause} ${orderClause} LIMIT ? OFFSET ?`,
+    `SELECT jugadores.*,
+      (SELECT COUNT(*) FROM partidos WHERE partidos.mvp_jugador_id = jugadores.id) AS mvp_count
+     FROM jugadores ${whereClause} ${orderClause} LIMIT ? OFFSET ?`,
     [...params, Number(limit), Number(offset)]
   );
   const [countRows] = await pool.query(`SELECT COUNT(*) AS total FROM jugadores ${whereClause}`, params);
@@ -33,7 +35,14 @@ async function findPlayers({ search = '', team = '', sortBy = 'goles', order = '
 }
 
 async function findPlayerById(id) {
-  const [rows] = await pool.query('SELECT * FROM jugadores WHERE id = ? LIMIT 1', [id]);
+  const [rows] = await pool.query(
+    `SELECT jugadores.*,
+      (SELECT COUNT(*) FROM partidos WHERE partidos.mvp_jugador_id = jugadores.id) AS mvp_count
+     FROM jugadores
+     WHERE jugadores.id = ?
+     LIMIT 1`,
+    [id]
+  );
   return rows[0] || null;
 }
 

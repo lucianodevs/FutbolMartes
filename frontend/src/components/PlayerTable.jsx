@@ -307,6 +307,9 @@ export function PlayerTable({ players, onEdit, onDelete, onPlayerUpdated }) {
               <ModalLabel>Goles</ModalLabel>
               <ModalValue>{formatNumber(selectedPlayer.goles)}</ModalValue>
 
+              <ModalLabel>MVP</ModalLabel>
+              <ModalValue>{formatNumber(selectedPlayer.mvp_count ?? 0)}</ModalValue>
+
               <ModalLabel>Presencias</ModalLabel>
               <ModalValue>{formatNumber(selectedPlayer.presencias)} ({selectedPlayer.asistencia_porcentaje}%)</ModalValue>
 

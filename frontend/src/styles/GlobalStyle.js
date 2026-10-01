@@ -19,10 +19,10 @@ export const GlobalStyle = createGlobalStyle`
     margin: 0;
     font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
     background:
-      radial-gradient(circle at top left, rgba(61, 220, 151, 0.18), transparent 26%),
-      radial-gradient(circle at top right, rgba(77, 163, 255, 0.15), transparent 22%),
-      linear-gradient(180deg, #06101c 0%, #081523 100%);
-    color: #ecf5ff;
+      radial-gradient(circle at top left, rgba(255, 181, 71, 0.16), transparent 26%),
+      radial-gradient(circle at top right, rgba(107, 214, 208, 0.16), transparent 22%),
+      linear-gradient(180deg, #071820 0%, #081c24 100%);
+    color: #f4f5ed;
     min-height: 100vh;
     overflow-x: hidden;
   }
@@ -45,6 +45,6 @@ export const GlobalStyle = createGlobalStyle`
   }
 
   ::selection {
-    background: rgba(61, 220, 151, 0.35);
+    background: rgba(255, 181, 71, 0.35);
   }
 `;

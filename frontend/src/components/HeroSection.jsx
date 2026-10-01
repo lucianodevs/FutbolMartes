@@ -89,7 +89,17 @@ const RankingList = styled.ol`
   margin: 0;
   padding-left: 18px;
   display: grid;
-  gap: 8px;
+  grid-auto-flow: column;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(3, auto);
+  column-gap: 20px;
+  row-gap: 8px;
+
+  @media (max-width: 560px) {
+    grid-auto-flow: row;
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+  }
 `;
 
 const RankingItem = styled.li`
@@ -109,7 +119,7 @@ function RankingCard({ title, items, detailBuilder }) {
         <div>Sin datos</div>
       ) : (
         <RankingList>
-          {items.slice(0, 3).map((item) => (
+          {items.slice(0, 6).map((item) => (
             <RankingItem key={`${title}-${item.id}`}>
               {item.nombre} {item.apellido}
               <small>{detailBuilder(item)}</small>
