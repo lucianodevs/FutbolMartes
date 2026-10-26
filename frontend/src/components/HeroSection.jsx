@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
-import { FiBarChart2, FiUsers, FiZap } from 'react-icons/fi';
+import { FiBarChart2, FiUsers } from 'react-icons/fi';
 import { formatNumber } from '@/utils/formatters';
 
 const Hero = styled.section`
@@ -26,14 +26,30 @@ const Panel = styled.div`
 `;
 
 const Badge = styled.span`
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 14px;
-  border-radius: 999px;
-  background: ${({ theme }) => theme.colors.primarySoft};
-  color: ${({ theme }) => theme.colors.primary};
-  font-weight: 700;
+  justify-content: center;
+  width: 100%;
+  min-height: 174px;
+  padding: 12px;
+  box-sizing: border-box;
+  border-radius: 22px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+`;
+
+const TeamBadges = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 68px;
+`;
+
+const TeamBadgeLogo = styled.img`
+  width: 150px;
+  height: 150px;
+  object-fit: contain;
+  border-radius: 18px;
 `;
 
 const Title = styled.h1`
@@ -111,6 +127,19 @@ const RankingItem = styled.li`
   }
 `;
 
+const RankingPlayer = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+`;
+
+const RankingLogo = styled.img`
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  border-radius: 5px;
+`;
+
 function RankingCard({ title, items, detailBuilder }) {
   return (
     <Card>
@@ -121,7 +150,13 @@ function RankingCard({ title, items, detailBuilder }) {
         <RankingList>
           {items.slice(0, 6).map((item) => (
             <RankingItem key={`${title}-${item.id}`}>
-              {item.nombre} {item.apellido}
+              <RankingPlayer>
+                <RankingLogo
+                  src={item.equipo === 'Dictadores' ? '/images/escudo-dictadores.jpeg' : '/images/escudo-tramposos.jpeg'}
+                  alt=""
+                />
+                {item.nombre} {item.apellido}
+              </RankingPlayer>
               <small>{detailBuilder(item)}</small>
             </RankingItem>
           ))}
@@ -140,7 +175,12 @@ export function HeroSection({ overview }) {
   return (
     <Hero>
       <Panel>
-        <Badge><FiZap /> Estadísticas en vivo</Badge>
+        <Badge>
+          <TeamBadges aria-label="Equipos participantes">
+            <TeamBadgeLogo src="/images/escudo-dictadores.jpeg" alt="Escudo de Dictadores FC" />
+            <TeamBadgeLogo src="/images/escudo-tramposos.jpeg" alt="Escudo de Tramposos FC" />
+          </TeamBadges>
+        </Badge>
         <Title>El panel del grupo de amigos que vive el fútbol todos los martes.</Title>
         <Text>
           Seguimos los partidos, goles, presencias y sanciones de Dictadores vs. Tramposos con una vista simple, rápida y hecha para nuestro juego entre amigos.

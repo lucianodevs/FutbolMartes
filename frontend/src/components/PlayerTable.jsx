@@ -204,13 +204,9 @@ export function PlayerTable({ players, onEdit, onDelete, onPlayerUpdated }) {
   const { user } = useAuth();
   const isAdmin = user?.rol === 'admin';
 
-  const apiUrl = (import.meta.env.VITE_API_URL || 'http://localhost:4000/api').replace(/\/api\/?$/, '');
-  const publicUrl = (fotoPath) => {
-    if (!fotoPath) return null;
-    if (fotoPath.startsWith('http://') || fotoPath.startsWith('https://')) return fotoPath;
-    return `${apiUrl}${fotoPath}`;
-  };
-  const placeholderDataUrl = `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="280" height="280"><rect width="100%" height="100%" fill="#777"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="28" fill="#fff">Jugador</text></svg>')}`;
+  const teamLogo = (team) => team === 'Dictadores'
+    ? '/images/escudo-dictadores.jpeg'
+    : '/images/escudo-tramposos.jpeg';
 
   return (
     <Wrap>
@@ -250,7 +246,7 @@ export function PlayerTable({ players, onEdit, onDelete, onPlayerUpdated }) {
           <Card key={player.id}>
             <CardHeader>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <SmallPhoto src={publicUrl(player.foto) || placeholderDataUrl} alt={`${player.nombre}`} />
+                <SmallPhoto src={teamLogo(player.equipo)} alt={`Escudo de ${player.equipo}`} />
                 <CardTitle>
                   <CardSubtle>{player.equipo}</CardSubtle>
                   <CardName onClick={() => setSelectedPlayer(player)} style={{ cursor: 'pointer' }}>{player.nombre} {player.apellido}</CardName>
@@ -299,7 +295,7 @@ export function PlayerTable({ players, onEdit, onDelete, onPlayerUpdated }) {
       <Modal open={!!selectedPlayer} title={selectedPlayer ? `${selectedPlayer.nombre} ${selectedPlayer.apellido}` : ''} onClose={closeModal}>
         {selectedPlayer && (
           <ModalGrid>
-            <Photo src={publicUrl(selectedPlayer.foto) || placeholderDataUrl} alt={`${selectedPlayer.nombre} ${selectedPlayer.apellido}`} />
+            <Photo src={teamLogo(selectedPlayer.equipo)} alt={`Escudo de ${selectedPlayer.equipo}`} />
             <div>
               <ModalLabel>Equipo</ModalLabel>
               <ModalValue>{selectedPlayer.equipo}</ModalValue>
