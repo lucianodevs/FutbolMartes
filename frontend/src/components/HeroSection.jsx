@@ -30,12 +30,8 @@ const Badge = styled.span`
   align-items: center;
   justify-content: center;
   width: 100%;
-  min-height: 174px;
-  padding: 12px;
+  min-height: 150px;
   box-sizing: border-box;
-  border-radius: 22px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.06);
 `;
 
 const TeamBadges = styled.div`
