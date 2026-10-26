@@ -44,12 +44,21 @@ export function HomePage() {
     const load = async () => {
       try {
         setLoading(true);
-        const [overviewData, playersData] = await Promise.all([
+        const [overviewData, playersData, rankingData] = await Promise.all([
           getOverviewStats(),
           getPlayers({ page: 1, limit: 8, search: debouncedSearch, team, sortBy, order: 'desc' }),
+          getPlayers({ page: 1, limit: 1000, order: 'desc', sortBy: 'goles' }),
         ]);
         setOverview(overviewData);
         setPlayers(playersData.items);
+        const rankingPlayers = rankingData.items;
+        setOverview((current) => ({
+          ...current,
+          topScorers: [...rankingPlayers].sort((a, b) => b.goles - a.goles || b.presencias - a.presencias),
+          topPresences: [...rankingPlayers].sort((a, b) => b.presencias - a.presencias || b.goles - a.goles),
+          topSanctions: [...rankingPlayers].sort((a, b) => b.sanciones - a.sanciones || b.goles - a.goles),
+          topMvps: [...rankingPlayers].sort((a, b) => (b.mvp_count ?? 0) - (a.mvp_count ?? 0) || b.goles - a.goles),
+        }));
       } catch (error) {
         Swal.fire('Error', 'No fue posible cargar las estadísticas', 'error');
       } finally {

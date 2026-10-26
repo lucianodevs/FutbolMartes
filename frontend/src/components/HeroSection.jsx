@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { FiBarChart2, FiUsers } from 'react-icons/fi';
 import { formatNumber } from '@/utils/formatters';
@@ -94,7 +95,34 @@ const Card = styled.div`
 `;
 
 const CardTitle = styled.h3`
-  margin: 0 0 10px;
+  margin: 0;
+`;
+
+const RankingHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+`;
+
+const RankingControls = styled.div`
+  display: flex;
+  gap: 4px;
+`;
+
+const RankingArrow = styled.button`
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: 7px;
+  background: transparent;
+  color: ${({ theme }) => theme.colors.muted};
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  opacity: ${({ disabled }) => (disabled ? 0.3 : 1)};
 `;
 
 const RankingList = styled.ol`
@@ -137,14 +165,45 @@ const RankingLogo = styled.img`
 `;
 
 function RankingCard({ title, items, detailBuilder }) {
+  const [activePage, setActivePage] = useState(0);
+  const hasItems = items?.length > 0;
+  const pageItems = hasItems ? items.slice(activePage * 6, activePage * 6 + 6) : [];
+  const totalPages = Math.ceil((items?.length || 0) / 6);
+
+  useEffect(() => {
+    setActivePage(0);
+  }, [items]);
+
   return (
     <Card>
-      <CardTitle>{title}</CardTitle>
-      {!items?.length ? (
+      <RankingHeader>
+        <CardTitle>{title}</CardTitle>
+        {totalPages > 1 ? (
+          <RankingControls>
+            <RankingArrow
+              type="button"
+              onClick={() => setActivePage((page) => Math.max(page - 1, 0))}
+              disabled={activePage === 0}
+              aria-label={`Anterior en ${title}`}
+            >
+              ‹
+            </RankingArrow>
+            <RankingArrow
+              type="button"
+              onClick={() => setActivePage((page) => Math.min(page + 1, totalPages - 1))}
+              disabled={activePage === totalPages - 1}
+              aria-label={`Siguiente en ${title}`}
+            >
+              ›
+            </RankingArrow>
+          </RankingControls>
+        ) : null}
+      </RankingHeader>
+      {!hasItems ? (
         <div>Sin datos</div>
       ) : (
         <RankingList>
-          {items.slice(0, 6).map((item) => (
+          {pageItems.map((item) => (
             <RankingItem key={`${title}-${item.id}`}>
               <RankingPlayer>
                 <RankingLogo
