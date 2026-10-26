@@ -42,7 +42,7 @@ const TeamBadges = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 68px;
+  gap: 24px;
 `;
 
 const TeamBadgeLogo = styled.img`
