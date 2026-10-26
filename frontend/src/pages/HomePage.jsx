@@ -7,6 +7,7 @@ import { OverviewStats } from '@/components/OverviewStats';
 import { SearchBar } from '@/components/SearchBar';
 import { PlayerTable } from '@/components/PlayerTable';
 import { MatchTable } from '@/components/MatchTable';
+import { Pagination } from '@/components/Pagination';
 import { SkeletonTable } from '@/components/SkeletonTable';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -31,6 +32,8 @@ export function HomePage() {
   const [overview, setOverview] = useState(null);
   const [players, setPlayers] = useState([]);
   const [matches, setMatches] = useState([]);
+  const [matchesPage, setMatchesPage] = useState(1);
+  const [matchesTotalPages, setMatchesTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [team, setTeam] = useState('');
@@ -41,14 +44,12 @@ export function HomePage() {
     const load = async () => {
       try {
         setLoading(true);
-        const [overviewData, playersData, matchesData] = await Promise.all([
+        const [overviewData, playersData] = await Promise.all([
           getOverviewStats(),
           getPlayers({ page: 1, limit: 8, search: debouncedSearch, team, sortBy, order: 'desc' }),
-          getMatches({ page: 1, limit: 5 }),
         ]);
         setOverview(overviewData);
         setPlayers(playersData.items);
-        setMatches(matchesData.items);
       } catch (error) {
         Swal.fire('Error', 'No fue posible cargar las estadísticas', 'error');
       } finally {
@@ -58,6 +59,20 @@ export function HomePage() {
 
     load();
   }, [debouncedSearch, team, sortBy]);
+
+  useEffect(() => {
+    const loadMatches = async () => {
+      try {
+        const matchesData = await getMatches({ page: matchesPage, limit: 5 });
+        setMatches(matchesData.items);
+        setMatchesTotalPages(matchesData.meta?.totalPages || 1);
+      } catch (error) {
+        Swal.fire('Error', 'No fue posible cargar los partidos', 'error');
+      }
+    };
+
+    loadMatches();
+  }, [matchesPage]);
 
   if (loading && !overview) {
     return <LoadingSpinner />;
@@ -79,6 +94,16 @@ export function HomePage() {
           <Title>Últimos partidos</Title>
         </Container>
         {loading ? <SkeletonTable rows={3} /> : <MatchTable matches={matches} />}
+        {!loading && matches.length ? (
+          <Container>
+            <Pagination
+              page={matchesPage}
+              totalPages={matchesTotalPages}
+              onPrev={() => setMatchesPage((page) => Math.max(page - 1, 1))}
+              onNext={() => setMatchesPage((page) => Math.min(page + 1, matchesTotalPages))}
+            />
+          </Container>
+        ) : null}
       </Section>
     </motion.div>
   );
